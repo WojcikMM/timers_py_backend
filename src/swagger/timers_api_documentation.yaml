@@ -1,0 +1,587 @@
+openapi: 3.0.0
+info:
+  title: Timers API
+  version: '1.0'
+paths:
+  /health:
+    get:
+      summary: Health Check
+      operationId: modules.controllers.healthController.health_check
+      description: Check if the service is alive.
+      tags:
+        - Health Checks
+      responses:
+        '200':
+          description: Application is alive.
+    
+  /login:
+    post:
+      tags:
+        - Authorization
+      summary: Login to application
+      operationId: modules.controllers.authorizationController.login_user
+      requestBody:
+        description: Login parameters to get JWT Token
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginObject'
+      responses:
+        '200':
+          description: Log In Successfully - Returns Bearer Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWTResponse'
+        '401':
+          description: Authorization failed - wrong login or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorObject'
+    
+  /register:
+    put:
+      tags:
+        - Authorization
+      summary: Register new user to application
+      operationId: modules.controllers.authorizationController.register_user
+      requestBody:
+        description: Registration user data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserObject'
+      responses:
+        '200':
+          description: Log In Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWTResponse'
+ 
+  /actions:
+    get:
+      tags:
+        - Actions
+      summary: Get All Actions
+      operationId: modules.controllers.actionController.get_all_actions
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                 $ref: '#/components/schemas/ActionObject'
+    post:
+      tags:
+        - Actions
+      security:
+        - BearerToken: []
+      summary: Create new Action
+      operationId: modules.controllers.actionController.create_action
+      requestBody:
+          description: Data to create new Action
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateActionObject'
+      responses:
+        '201':
+          description: Action was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionObject'
+        '400':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authorization bearer token failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorObject'          
+        '403':
+          description: User don't have required roles
+  
+  /actions/{action_id}:
+    get:
+      summary: Get action with specyfied Identity
+      operationId: modules.controllers.actionController.get_action
+      tags:
+        - Actions
+      parameters:
+        - name: action_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Guid identity
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Action with this identity doesn't exists.
+    patch:
+      summary: Update action with specyfied Idetity
+      operationId: modules.controllers.actionController.update_action
+      security:
+        - BearerToken: []
+      tags:
+        - Actions
+      parameters:
+        - name: action_id
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateActionObject'
+      responses:
+        '200':
+          description: Action data updated succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User don't have required roles
+        '404':
+          description: Action with this identity doesn't exists.
+    delete:
+      summary: Delete specyfied Group
+      operationId: modules.controllers.actionController.delete_action
+      security:
+        - BearerToken: []
+      tags:
+        - Actions
+      parameters:
+        - name: action_id
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      responses:
+        '204':
+          description: Action successfully deleted
+        '403':
+          description: User don't have required roles
+        '404':
+          description: Action with specyfied identity was not exists
+  
+  /groups:
+    get:
+      summary: Get all Groups
+      operationId: modules.controllers.groupController.get_all_groups
+      tags:
+        - Groups
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupObject'
+    post: 
+      summary: Create new Group
+      operationId: modules.controllers.groupController.create_group
+      security:
+        - BearerToken: []
+      tags:
+        - Groups
+      requestBody:
+          description: Data to create new Group
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGroupObject'
+      responses:
+        '201':
+          description: Group was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User don't have required roles
+  
+  /groups/{groupId}:
+    get:
+      summary: Get specyfied Group
+      operationId: modules.controllers.groupController.get_group
+      tags:
+        - Groups
+      parameters:
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Group with this identity doesn't exists.
+    patch:
+      summary: Update Group data
+      operationId: modules.controllers.groupController.update_group
+      security:
+        - BearerToken: []
+      tags:
+        - Groups 
+      parameters:
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGroupObject'
+      responses:
+        '200':
+          description: Group data updated succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User don't have required roles          
+        '404':
+          description: Group with this identity doesn't exists.
+    delete:
+      summary: Delete specyfied Group
+      operationId: modules.controllers.groupController.delete_group
+      security:
+        - BearerToken: []
+      tags:
+        - Groups
+      parameters:
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      responses:
+        '204':
+          description: Group successfully deleted
+        '403':
+          description: User don't have required roles  
+        '404':
+          description: Group with specyfied identity was not exists
+   
+  /records:
+    get:
+      summary: Get all Records
+      operationId: modules.controllers.recordController.get_all_records
+      tags:
+        - Records
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecordObject'
+    post:
+      summary: Create new Record
+      operationId: modules.controllers.recordController.create_record
+      security:
+        - BearerToken: []
+      tags:
+        - Records
+      requestBody:
+        description: Data to create new Record
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRecordObject'
+      responses:
+        '200':
+          description: Record was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordObject'
+        '400':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User don't have required roles          
+  
+  /records/{recordId}:
+    get:
+      summary: Get specyfied Record
+      operationId: modules.controllers.recordController.get_record
+      tags:
+        - Records
+      parameters:
+        - name: recordId
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Record with this identity doesn't exists.
+    delete:
+      summary: Delete specyfied Record
+      operationId: modules.controllers.recordController.delete_record
+      security:
+        - BearerToken: []
+      tags:
+        - Records
+      parameters:
+        - name: recordId
+          in: path
+          schema:
+            type: string
+          description: Guid identity
+          required: true
+      responses:
+        '204':
+          description: Record was removed.
+        '403':
+          description: User don't have required roles
+        '404':
+          description: Record with specyfied identity was not exists
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: modules.security.jwt.decode_token
+  schemas:
+    ErrorResponse:
+      properties:
+        status: 
+          type: integer
+          description: Http response status (the same in header)
+        title:
+          type: string
+          description: Description of http response status
+        details:
+          type: string
+          description: Explanation which fields are not correct
+        type:
+          type: string
+    JWTResponse:
+      properties:
+        token:
+          type: string
+          description: Bearer authorization token
+    LoginObject:
+      properties:
+        login:
+          type: string
+          description: User login
+          format: login
+        password:
+          type: string
+          format: password 
+          description: User password [in base64]
+      required:
+        - login
+        - password
+    RegisterUserObject:
+      properties:
+        login:
+          type: string
+          description: User login
+          format: login
+        password:
+          type: string
+          format: password
+          description: User password [in Base64]
+        email:
+          type: string
+          format: email
+      required:
+        - login
+        - password
+        - email
+    CreateActionObject:
+      properties:
+        groupId:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+          default: true
+      required:
+        - groupId
+        - name 
+    UpdateActionObject:
+      properties:
+        groupId:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+    ActionObject:
+      properties:
+        action_id:
+          type: string
+        groupId:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+    CreateGroupObject:
+      properties:
+        name:
+          type: string
+        active:
+          type: boolean
+          default: true
+      required:
+        - name
+    UpdateGroupObject:
+      properties:
+        name:
+          type: string
+        active:
+          type: boolean
+    GroupObject:
+      properties:
+        groupId:
+          type: string
+        name:
+          type: string
+        active: 
+          type: boolean
+    CreateRecordObject:
+      properties:
+        action_id:
+          type: string
+        secondsCount:
+          type: integer
+        comment:
+          type: string
+      required:
+        - action_id
+        - secondsCount
+    RecordObject:
+      properties:
+        recordId:
+          type: string
+        action_id:
+          type: string
+        secondsCount:
+          type: integer
+        comment:
+          type: string
+        userId:
+          type: string
+        userLogin:
+          type: string
+          format: login
+        createdAt:
+          type: string
+          format: datetime
+    UnauthorizedErrorObject:
+      properties:
+        message:
+          type: string

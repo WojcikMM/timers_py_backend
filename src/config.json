@@ -1,0 +1,7 @@
+{
+	"jwt_issuer": "timers.com",
+	"jwt_secret": "mySecret",
+	"jwt_expiration_time_sec": "600",
+	"jwt_algorithm": "HS256",
+	"connectionString": "mongodb://localhost:27017/"
+}
