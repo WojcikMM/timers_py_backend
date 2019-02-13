@@ -253,14 +253,14 @@ paths:
         '403':
           description: User don't have required roles
   
-  /groups/{groupId}:
+  /groups/{group_id}:
     get:
       summary: Get specyfied Group
       operationId: modules.controllers.groupController.get_group
       tags:
         - Groups
       parameters:
-        - name: groupId
+        - name: group_id
           in: path
           schema:
             type: string
@@ -291,7 +291,7 @@ paths:
       tags:
         - Groups 
       parameters:
-        - name: groupId
+        - name: group_id
           in: path
           schema:
             type: string
@@ -330,7 +330,7 @@ paths:
       tags:
         - Groups
       parameters:
-        - name: groupId
+        - name: group_id
           in: path
           schema:
             type: string
@@ -391,14 +391,14 @@ paths:
         '403':
           description: User don't have required roles          
   
-  /records/{recordId}:
+  /records/{record_id}:
     get:
       summary: Get specyfied Record
       operationId: modules.controllers.recordController.get_record
       tags:
         - Records
       parameters:
-        - name: recordId
+        - name: record_id
           in: path
           schema:
             type: string
@@ -429,7 +429,7 @@ paths:
       tags:
         - Records
       parameters:
-        - name: recordId
+        - name: record_id
           in: path
           schema:
             type: string
@@ -501,7 +501,7 @@ components:
         - email
     CreateActionObject:
       properties:
-        groupId:
+        group_id:
           type: string
         name:
           type: string
@@ -509,11 +509,11 @@ components:
           type: boolean
           default: true
       required:
-        - groupId
+        - group_id
         - name 
     UpdateActionObject:
       properties:
-        groupId:
+        group_id:
           type: string
         name:
           type: string
@@ -523,7 +523,7 @@ components:
       properties:
         action_id:
           type: string
-        groupId:
+        group_id:
           type: string
         name:
           type: string
@@ -546,7 +546,7 @@ components:
           type: boolean
     GroupObject:
       properties:
-        groupId:
+        group_id:
           type: string
         name:
           type: string
@@ -565,7 +565,7 @@ components:
         - secondsCount
     RecordObject:
       properties:
-        recordId:
+        record_id:
           type: string
         action_id:
           type: string

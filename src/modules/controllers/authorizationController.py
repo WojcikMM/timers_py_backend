@@ -1,5 +1,5 @@
+from connexion import request
 from src.modules.security.jwt import generate_token
-from connexion import request, NoContent
 
 
 def login_user() -> {dict, int}:

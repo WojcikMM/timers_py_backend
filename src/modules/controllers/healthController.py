@@ -1,6 +1,5 @@
-'''
-    HealthCheck
-'''
+"""HealthCheck"""
+
 
 def health_check():
-    return None,200
+    return None, 200

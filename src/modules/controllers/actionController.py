@@ -1,10 +1,6 @@
-from src.modules.database.main.main_db import MainDatabase
-from src.modules.database.actions_collection import ActionCollection
-from src.config import database_settings
+"""Controller to handling request where target is action object"""
 from connexion import request, NoContent
-
-main_database = MainDatabase(database_settings['connection_string'], database_settings['database_name'])
-action_collection = ActionCollection(main_database)
+from src.modules.database.providers.actions_collection_provider import ActionsCollectionProvider
 
 
 def get_all_actions() -> None:
@@ -12,22 +8,21 @@ def get_all_actions() -> None:
     Returns all actions from database
     :return: list of action documents
     """
-    return action_collection.get_all_actions(), 200
+    return ActionsCollectionProvider().get_all_documents(), 200
 
 
 def get_action(action_id: str) -> None:
     """Get action by action identity
     :param action_id identity of specific action
     """
-    return action_collection.get_action_by_id(action_id), 200
+    return ActionsCollectionProvider().get_document_by_id(action_id), 200
 
 
 def create_action() -> None:
     """Create new action"""
     body = request.json
     print(body)
-    new_document_id = action_collection.create_action(body)
-    return new_document_id, 201
+    return ActionsCollectionProvider().insert_document(body), 201
 
 
 def update_action(action_id: str) -> None:
@@ -35,19 +30,15 @@ def update_action(action_id: str) -> None:
     :param action_id identity of action to update
     """
     body = request.json
-    updated_id = action_collection.update_action(action_id, body)
+    print(body)
+    updated_id = ActionsCollectionProvider().update_document_by_id(action_id, body)
 
-    if updated_id is not None:
-        return NoContent, 200
-    else:
-        return NoContent, 404
+    status_code = 404 if updated_id is None else 200
+    return NoContent, status_code
 
 
 def delete_action(action_id: str) -> None:
     """Delete the existed action
     :param action_id -- Identity of the action to remove"""
-    result = action_collection.delete_action(action_id)
-    if result is not None:
-        return NoContent, 204
-    else:
-        return NoContent, 404
+    status_code = 404 if ActionsCollectionProvider().delete_document_by_id(action_id) is None else 204
+    return NoContent, status_code
