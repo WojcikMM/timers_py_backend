@@ -1,6 +1,6 @@
 """Controller to handling request where target is action object"""
 from connexion import request, NoContent
-from src.modules.database.providers.actions_collection_provider import ActionsCollectionProvider
+from modules.database.providers.actions_collection_provider import ActionsCollectionProvider
 
 
 def get_all_actions() -> None:

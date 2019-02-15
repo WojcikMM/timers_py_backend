@@ -1,7 +1,6 @@
 from connexion import FlaskApp
 from connexion.exceptions import Unauthorized
-from src.modules.error_handlers import unauthorized_error_handler
-
+from modules.error_handlers import unauthorized_error_handler
 
 app = FlaskApp(__name__, specification_dir='swagger/')
 app.add_api('timers_api_documentation.yaml')

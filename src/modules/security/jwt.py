@@ -2,8 +2,8 @@ from time import time
 from jose import JWTError, jwt
 from six import raise_from
 from werkzeug.exceptions import Unauthorized
-
-from src.config import jwt_settings
+from os import environ
+from modules.security.secrets_reader import get_secret
 
 
 def decode_token(token):
@@ -12,7 +12,9 @@ def decode_token(token):
         - token -> bearer token
     """
     try:
-        return jwt.decode(token, jwt_settings['secret'], jwt_settings['algorithm'])
+        return jwt.decode(token,
+                          get_secret(environ['JWT_SECRETS'], 'JWT_SECRET'),
+                          get_secret(environ['JWT_SECRETS'], 'JWT_ALGORITM'))
     except JWTError as e:
         raise_from(Unauthorized, e)
 
@@ -25,12 +27,12 @@ def generate_token(login)-> str:
     """
     time_ticks = int(time())
     payload = {
-        "iss": jwt_settings['issuer'],
+        "iss": get_secret(environ['JWT_SECRETS'], 'JWT_ISSUER'),
         "iat": time_ticks,
-        "exp": time_ticks + jwt_settings['expiration_time_seconds'],
+        "exp": time_ticks + get_secret(environ['JWT_SECRETS'], 'JWT_TOKEN_EXPIRATION_SECONDS'),
         "sub": login,
         "claims": {
             "roles": ["user", "actionReader"]
         }
     }
-    return jwt.encode(payload, jwt_settings['secret'])
+    return jwt.encode(payload, get_secret(environ['JWT_SECRETS'], 'JWT_SECRET'))

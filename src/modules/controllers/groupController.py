@@ -1,6 +1,6 @@
 """Controller to handling request where target is group object"""
 from connexion import request, NoContent
-from src.modules.database.providers.groups_collection_provider import GroupsCollectionProvider
+from modules.database.providers.groups_collection_provider import GroupsCollectionProvider
 
 
 def get_all_groups() -> None:

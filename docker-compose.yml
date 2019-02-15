@@ -5,6 +5,19 @@ services:
     ports:
       - 8080:8080
     links:
-      - mongo
-  mongo:
+      - mongo-db
+    secrets:
+      JWT_SECRETS:
+        file: ./jwt_secrets.json
+    enviroment:
+      - SECRET_FILE_NAME = JWT_SECRETS
+      - MONGO_CONNECTION_STRING = mongodb://mongo:27017/
+      - MONGO_DATABASE_NAME = timers
+      - JWT_ISSUER = timers.com
+      - JWT_TOKEN_EXPIRATION_SECONDS = 600
+      - JWT_ALGORITM = HS256
+      - JWT_SECRET = my_secret1
+  mongo-db:
     image: mongo
+    volumes:
+      - ./mongo-data:/data/db

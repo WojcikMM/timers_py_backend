@@ -1,16 +1,17 @@
+from os import environ
+
 from bson.objectid import ObjectId
 from pymongo import MongoClient
-from src.modules.utils.mongo_utils import jsonify_mongodb_object
-from src.config import database_settings
+
+from modules.utils.mongo_utils import jsonify_mongodb_object
 
 
-class MainDatabase:
+class MainDatabaseProvider:
     def __init__(self, collection_name: str):
-        """ Create an instance of Main DataBase Connection
-        :rtype:
-        """
-        self.__database_name = database_settings['database_name']
-        self.__client = MongoClient(database_settings['connection_string'])
+        """ Create an instance of Main DataBase Connection"""
+        self.__connection_string = environ['MONGO_CONNECTION_STRING']
+        self.__database_name = environ['MONGO_DATABASE_NAME']
+        self.__client = MongoClient(self.__connection_string)
         self.__database = self.__client.get_database(self.__database_name)
         self.__collection_name = collection_name
 
@@ -55,7 +56,7 @@ class MainDatabase:
         :return: target document identity if exists else returns None
         """
         collection = self.__database.get_collection(self.__collection_name)
-        updated_document = collection.update_one({'_id': ObjectId(document_id)}, updated_properties)
+        updated_document = collection.update_one({'_id': ObjectId(document_id)}, {"$set": updated_properties})
         return updated_document['_id'] if '_id' in updated_document else None
 
     def __del__(self):

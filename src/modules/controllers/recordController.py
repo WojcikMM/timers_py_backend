@@ -1,6 +1,6 @@
 """Controller to handling request where target is record object"""
 from connexion import request, NoContent
-from src.modules.database.providers.records_collection_provider import RecordsCollectionProvider
+from modules.database.providers.records_collection_provider import RecordsCollectionProvider
 
 
 def get_all_records() -> None:
