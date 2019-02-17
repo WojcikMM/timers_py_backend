@@ -1,9 +1,12 @@
+from operator import is_not, eq
+from os import environ
 from time import time
 from jose import JWTError, jwt
 from six import raise_from
 from werkzeug.exceptions import Unauthorized
-from os import environ
-from modules.security.secrets_reader import get_secret
+
+from modules.errors.authorization_error import AuthorizationError
+from modules.security.utils import get_secret
 
 
 def decode_token(token):
@@ -13,26 +16,32 @@ def decode_token(token):
     """
     try:
         return jwt.decode(token,
-                          get_secret(environ['JWT_SECRETS'], 'JWT_SECRET'),
-                          get_secret(environ['JWT_SECRETS'], 'JWT_ALGORITM'))
+                          get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_SECRET'),
+                          get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_ALGORITM'))
     except JWTError as e:
         raise_from(Unauthorized, e)
 
 
-def generate_token(login)-> str:
+def generate_token(user_document) -> str:
     """
     Create Bearer token by UserLogin
-    :param login: userLogin
+    :type user_document: UserModel - User Document object
+    :rtype: str
     :return: Bearer Token
     """
-    time_ticks = int(time())
-    payload = {
-        "iss": get_secret(environ['JWT_SECRETS'], 'JWT_ISSUER'),
-        "iat": time_ticks,
-        "exp": time_ticks + get_secret(environ['JWT_SECRETS'], 'JWT_TOKEN_EXPIRATION_SECONDS'),
-        "sub": login,
-        "claims": {
-            "roles": ["user", "actionReader"]
+
+    if eq(user_document, None):
+        raise AuthorizationError(description='User login or password is invalid!')
+    else:
+        time_ticks = int(time())
+        payload = {
+            "iss": get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_ISSUER'),
+            "iat": time_ticks,
+            "exp": time_ticks + int(get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_TOKEN_EXPIRATION_SECONDS')),
+            "sub": user_document['login'],
+            "claims": {
+                "roles": user_document['user_roles'] if 'user_roles' in user_document else []
+            }
         }
-    }
-    return jwt.encode(payload, get_secret(environ['JWT_SECRETS'], 'JWT_SECRET'))
+        return jwt.encode(payload, get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_SECRET'))
+

@@ -1,4 +1,9 @@
-version: '3'
+version: '3.1'
+
+secrets:
+  JWT_SECRETS:
+    file: ./configuration/jwt_secrets.json
+
 services:
   timers-backend:
     build: .
@@ -7,17 +12,13 @@ services:
     links:
       - mongo-db
     secrets:
-      JWT_SECRETS:
-        file: ./jwt_secrets.json
-    enviroment:
-      - SECRET_FILE_NAME = JWT_SECRETS
-      - MONGO_CONNECTION_STRING = mongodb://mongo:27017/
-      - MONGO_DATABASE_NAME = timers
-      - JWT_ISSUER = timers.com
-      - JWT_TOKEN_EXPIRATION_SECONDS = 600
-      - JWT_ALGORITM = HS256
-      - JWT_SECRET = my_secret1
+      - JWT_SECRETS
+    environment:
+      JWT_SECRET_FILE_NAME: JWT_SECRETS
+      MONGO_CONNECTION_STRING: mongodb://mongo-db:27017/
+      MONGO_DATABASE_NAME: timers
+      IS_DOCKER_ENV: true
   mongo-db:
     image: mongo
     volumes:
-      - ./mongo-data:/data/db
+      - '/var/lib/boot2docker/my-mongodb-data/:/data/db'
