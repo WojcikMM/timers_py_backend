@@ -16,3 +16,4 @@ def authorization_error_handler(exception) -> Response:
 def fail_validation_handler() -> Response:
     return Response(response=dumps({'validationMessages': ('message1', 'message2', 'message3')}), status=400,
                     mimetype="application/json")
+

@@ -221,8 +221,8 @@ paths:
           in: path
           schema:
             type: string
-          description: Guid identity
           required: true
+          description: Guid identity
       responses:
         '204':
           description: Action successfully deleted

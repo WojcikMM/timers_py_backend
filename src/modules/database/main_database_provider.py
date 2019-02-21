@@ -46,7 +46,7 @@ class MainDatabaseProvider:
         :rtype: returns deleted identity or None if not exists
         """
         deleted_document = self.__collectionHandler.find_one_and_delete({'_id': ObjectId(document_id)})
-        return deleted_document['_id'] if '_id' in deleted_document else None
+        return deleted_document['_id'] if deleted_document is not None and '_id' in deleted_document else None
 
     def update_document_by_id(self, document_id: str, updated_properties: {}) -> str:
         """Update document with specific identity  and return it identity if exists.
@@ -57,7 +57,7 @@ class MainDatabaseProvider:
         """
         updated_document = self.__collectionHandler.update_one({'_id': ObjectId(document_id)},
                                                                {"$set": updated_properties})
-        return updated_document['_id'] if '_id' in updated_document else None
+        return updated_document['_id'] if updated_document is not None and '_id' in updated_document else None
 
     def any_documents(self, **kwargs) -> bool:
         """

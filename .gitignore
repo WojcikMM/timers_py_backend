@@ -2,3 +2,4 @@ dev/
 .vscode/
 .idea/
 jwt_secrets.json
+__pycache__/

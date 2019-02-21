@@ -1,7 +1,7 @@
 from operator import itemgetter
+
 from connexion import request, NoContent
 from injector import inject
-from werkzeug.exceptions import Unauthorized
 
 from modules.abstracts.database.collection_providers.collection_providers_abstract import \
     UsersCollectionProviderAbstract

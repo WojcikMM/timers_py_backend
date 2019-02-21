@@ -1,17 +1,7 @@
-class authorize(object):
-
-    def __init__(self, required_role: str):
-        self.__required_role = required_role
-
-    def __call__(self, function):
-        def wrapped_function(*args):
-            print(f'Here make role validation and authorization. User must have any of these roles ({self.__required_role}) to call this controller action')
-            function(*args)
-        return wrapped_function
+from modules.attributes.authorize import Authorize
 
 
-
-@authorize('Testowa rola')
+@Authorize('Testowa rola')
 def myFunc(argument_str: str):
     print('Controller action logic')
 
@@ -25,3 +15,9 @@ myFunc('argument funkcji')
 
 
 # a_function_requiring_decoration()
+# def capital_case(x):
+#     return x.capitalize()
+
+
+# def test_capital_case():
+#     assert capital_case('semaphore') == 'Semaphore'

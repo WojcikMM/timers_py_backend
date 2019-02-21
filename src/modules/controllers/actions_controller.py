@@ -4,6 +4,8 @@ from modules.abstracts.database.collection_providers.collection_providers_abstra
     ActionsCollectionProviderAbstract
 from injector import inject
 
+from modules.attributes.authorize import Authorize
+
 
 @inject
 def get_all_actions(actions_provider: ActionsCollectionProviderAbstract) -> {any, int}:
@@ -46,9 +48,11 @@ def update_action(action_id: str, actions_provider: ActionsCollectionProviderAbs
 
 
 @inject
-def delete_action(action_id: str, actions_provider: ActionsCollectionProviderAbstract) -> None:
+@Authorize('ADMIN')
+def delete_action(action_id: str, actions_provider: ActionsCollectionProviderAbstract, token_info) -> None:
     """Delete the existed action
     :param actions_provider: Abstract class - need to override in binding options
     :param action_id -- Identity of the action to remove"""
+    print(type(token_info))
     status_code = 404 if actions_provider.delete_document_by_id(action_id) is None else 204
     return NoContent, status_code
