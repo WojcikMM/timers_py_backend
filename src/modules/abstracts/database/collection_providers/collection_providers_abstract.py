@@ -7,7 +7,7 @@ class ActionsCollectionProviderAbstract(MainDatabaseProviderAbstract, metaclass=
 
     @abstractmethod
     def __init__(self):
-        """Generate new instance of Action database provider"""
+        """Generate new instance of ActionModel database provider"""
         pass
 
 
@@ -16,7 +16,7 @@ class GroupsCollectionProviderAbstract(MainDatabaseProviderAbstract, metaclass=A
 
     @abstractmethod
     def __init__(self):
-        """Generate new instance of Action database provider"""
+        """Generate new instance of ActionModel database provider"""
         pass
 
 
@@ -25,7 +25,7 @@ class RecordsCollectionProviderAbstract(MainDatabaseProviderAbstract, metaclass=
 
     @abstractmethod
     def __init__(self):
-        """Generate new instance of Action database provider"""
+        """Generate new instance of ActionModel database provider"""
         pass
 
 
@@ -34,4 +34,4 @@ class UsersCollectionProviderAbstract(MainDatabaseProviderAbstract, metaclass=AB
 
     @abstractmethod
     def __init__(self):
-        """Generate new instance of Action database provider"""
+        """Generate new instance of ActionModel database provider"""

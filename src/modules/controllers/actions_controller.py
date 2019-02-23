@@ -1,58 +1,71 @@
 """Controller to handling request where target is action object"""
+from operator import itemgetter
 from connexion import request, NoContent
-from modules.abstracts.database.collection_providers.collection_providers_abstract import \
-    ActionsCollectionProviderAbstract
-from injector import inject
+from modules.database.models import ActionModel
+from json import loads
 
-from modules.attributes.authorize import Authorize
+__not_found_response = {'messaage': 'No actions found'}, 404
 
 
-@inject
-def get_all_actions(actions_provider: ActionsCollectionProviderAbstract) -> {any, int}:
+def get_all_actions() -> {any, int}:
     """
     Returns all actions from database
-    :type actions_provider: Abstract class - need to override in binding options
     :return: list of action documents
     """
-    return actions_provider.get_all_documents(), 200
+    return loads(ActionModel.objects().to_json()), 200
 
 
-@inject
-def get_action(action_id: str, actions_provider: ActionsCollectionProviderAbstract) -> None:
+def get_action_by_id(action_id: str):
     """Get action by action identity
-    :param actions_provider: Abstract class - need to override in binding options
     :param action_id identity of specific action
     """
-    return actions_provider.get_document_by_id(action_id), 200
+    action = ActionModel.objects.get(id=action_id)
+    if action is None:
+        return __not_found_response
+    return loads(action.to_json()), 200
 
 
-@inject
-def create_action(actions_provider: ActionsCollectionProviderAbstract) -> None:
-    """Create new action
-    :type actions_provider: Abstract class - need to override in binding options
+def get_actions_for_group(group_id: str):
+    """Get actions by related GroupModel identity
+    :param group_id identity of related group_id document
     """
-    body = request.json
-    print(body)
-    return actions_provider.insert_document(body), 201
+    actions = ActionModel.objects(group=group_id, active=True)
+    if actions is not None:
+        return __not_found_response
+    return loads(actions.to_json()), 200
 
 
-@inject
-def update_action(action_id: str, actions_provider: ActionsCollectionProviderAbstract) -> None:
+def create_action():
+    """Create new action"""
+    return {'id': ActionModel(**request.json).save().id}, 201
+
+
+def update_action(action_id: str):
     """ Update the existed action
-    :param actions_provider: Abstract class - need to override in binding options
     :param action_id identity of action to update
     """
-    updated_id = actions_provider.update_document_by_id(action_id, request.json)
-    status_code = 404 if updated_id is None else 200
-    return NoContent, status_code
+    action: ActionModel = ActionModel.objects.get(id=action_id)
+    if action is None:
+        return __not_found_response
+    else:
+        group_id, name, active = itemgetter('group_id', 'name', 'active')(request.json)
+        if group_id is not None:
+            action.group_id = group_id
+        if name is not None:
+            action.name = name
+        if active is not None:
+            action.active = active
+        action.save()
+        return NoContent, 204
 
 
-@inject
-@Authorize('ADMIN')
-def delete_action(action_id: str, actions_provider: ActionsCollectionProviderAbstract, token_info) -> None:
+def remove_action_by_id(action_id: str, token_info) -> None:
     """Delete the existed action
-    :param actions_provider: Abstract class - need to override in binding options
     :param action_id -- Identity of the action to remove"""
     print(type(token_info))
-    status_code = 404 if actions_provider.delete_document_by_id(action_id) is None else 204
-    return NoContent, status_code
+    action: ActionModel = ActionModel.objects.get(id=action_id)
+    if action is None:
+        return __not_found_response
+    delete_return = action.delete()
+    print(delete_return)
+    return NoContent, 204

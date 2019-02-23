@@ -13,29 +13,73 @@ paths:
       responses:
         '200':
           description: Application is alive.
-  /users:
+  /self/change-password:
     patch:
       tags:
-        - Authorization
-        - Users
-      summary: Update users data
-      operationId: modules.controllers.auth_controller.update_user
+        - Self Servicre
+      security:
+        - BearerToken: []
+      summary: Changes the user password
+      operationId: modules.controllers.auth_controller.update_user_properties
       requestBody:
-        description: User properties
+        description: User password
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserDataObject'
+              $ref: '#/components/schemas/UpdateSelfPropertiesObject'
       responses:
         '204':
           description: Users data successfully updated.
-        '401':
-          description: Authorization failed - wrong login or password
+
+        '400':
+          description: Updated parameter is invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorObject'
+                $ref: '#/components/schemas/ErrorObject'
+
+        '401':
+          description: Invalid Authorization Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+
+  /users/update_role:
+    patch:
+      tags:
+        - User Administration
+      security:
+        - BearerToken: []
+      summary: Promote or Degrade user role
+      operationId: modules.controllers.auth_controller.update_user_role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatUserRoleObject'
+      responses:
+        '204':
+          description: Users data successfully updated.
+
+        '400':
+          description: Updated parameter is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: User with this login not exists
+        '401':
+          description: Invalid Authorization Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '403':
+          description: User don't have required roles
 
   /login:
     post:
@@ -63,8 +107,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorObject'
-    
+                $ref: '#/components/schemas/ErrorObject'
+
   /register:
     put:
       tags:
@@ -86,7 +130,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JWTResponse'
- 
+
   /actions:
     get:
       tags:
@@ -115,44 +159,66 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateActionObject'
+                type: object
+                properties:
+                  group_id:
+                    type: string
+                    format: uuid
+                    example: '5c55f6dd9bde60358cc057c2'
+                    description: Identity of related Group
+                  name:
+                    type: string
+                    description: Action name
+                    example: 'Some Action Name'
+                  active:
+                    type: boolean
+                    default: True
+                    description: Defines whether the Action is active or not
+                required:
+                  - group_id
+                  - name
       responses:
         '201':
           description: Action was created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ActionObject'
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: '5c55f6dd9bde60358cc057c2'
+                    description: Identity of just created Action document
         '400':
           description: Validation Error
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorObject'
         '401':
-          description: Authorization bearer token failed
+          description: Invalid Authorization Token
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorObject'          
+                $ref: '#/components/schemas/ErrorObject'
         '403':
           description: User don't have required roles
-  
-  /actions/{action_id}:
+
+  /actions/by-group/{group_id}:
     get:
-      summary: Get action with specyfied Identity
-      operationId: modules.controllers.actions_controller.get_action
+      summary: Get Actions associated with the Group with the specified identifier
+      operationId: modules.controllers.actions_controller.get_actions_for_group
       tags:
         - Actions
       parameters:
-        - name: action_id
+        - name: group_id
           in: path
           schema:
             type: string
           required: true
-          description: Guid identity
+          description: The group Identity associated with the Actions
+          example: '5c55f6dd9bde60358cc057c2'
       responses:
         '200':
           description: Ok
@@ -165,13 +231,41 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: Actions for Group with this identity doesn't exists.
+
+  /actions/{action_id}:
+    get:
+      summary: Get Action with specyfied Identity
+      operationId: modules.controllers.actions_controller.get_action_by_id
+      tags:
+        - Actions
+      parameters:
+        - name: action_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Identity of searched Action
+          example: '5c55f6dd9bde60358cc057c2'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
         '404':
           description: Action with this identity doesn't exists.
     patch:
-      summary: Update action with specyfied Idetity
+      summary: Update Action with specyfied Identity
       operationId: modules.controllers.actions_controller.update_action
       security:
         - BearerToken: []
@@ -182,36 +276,47 @@ paths:
           in: path
           schema:
             type: string
-          description: Guid identity
+          description: The identifier defining the action to be updated
+          example: '5c55f6dd9bde60358cc057c2'
           required: true
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateActionObject'
-      responses:
-        '200':
-          description: Action data updated succesfully
-          content:
-            application/json:
               schema:
-                $ref: '#/components/schemas/ActionObject'
+                type: object
+                properties:
+                  group_id:
+                    type: string
+                    format: uuid
+                    example: '5c55f6dd9bde60358cc057c2'
+                    description: Identity of related Group
+                  name:
+                    type: string
+                    description: Action name
+                    example: 'Some Action Name'
+                  active:
+                    type: boolean
+                    default: True
+                    description: Defines whether the Action is active or not
+      responses:
+        '204':
+          description: Action data updated succesfully
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorObject'
+        '401':
+          description: Invalid Authorization Token
         '403':
           description: User don't have required roles
         '404':
           description: Action with this identity doesn't exists.
     delete:
-      summary: Delete specyfied Group
-      operationId: modules.controllers.actions_controller.delete_action
+      summary: Remove Action with specyfied Identity
+      operationId: modules.controllers.actions_controller.remove_action_by_id
       security:
         - BearerToken: []
       tags:
@@ -221,16 +326,19 @@ paths:
           in: path
           schema:
             type: string
+          description: The identifier defining the Action to be deleted
+          example: '5c55f6dd9bde60358cc057c2'
           required: true
-          description: Guid identity
       responses:
         '204':
           description: Action successfully deleted
+        '401':
+          description: Invalid Authorization Token
         '403':
           description: User don't have required roles
         '404':
           description: Action with specyfied identity was not exists
-  
+
   /groups:
     get:
       summary: Get all Groups
@@ -246,7 +354,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GroupObject'
-    post: 
+    post:
       summary: Create new Group
       operationId: modules.controllers.groups_controller.create_group
       security:
@@ -259,29 +367,51 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateGroupObject'
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: 'Defines the Group name'
+                    example: 'Some Group name'
+                  active:
+                    type: boolean
+                    default: true
+                    example: true
+                required:
+                  - name
+
       responses:
         '201':
           description: Group was created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupObject'
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: '5c55f6dd9bde60358cc057c2'
+                    description: Identity of just created Group document
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorObject'
+        '401':
+          description: Invalid Authorization Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
         '403':
           description: User don't have required roles
-  
+
   /groups/{group_id}:
     get:
-      summary: Get specyfied Group
-      operationId: modules.controllers.groups_controller.get_group
+      summary: Get Group with specyfied Identity
+      operationId: modules.controllers.groups_controller.get_group_by_id
       tags:
         - Groups
       parameters:
@@ -289,8 +419,9 @@ paths:
           in: path
           schema:
             type: string
-          description: Guid identity
           required: true
+          description: Identity of searched Group
+          example: '5c55f6dd9bde60358cc057c2'
       responses:
         '200':
           description: Ok
@@ -303,53 +434,12 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorObject'
         '404':
           description: Group with this identity doesn't exists.
     patch:
-      summary: Update Group data
+      summary: Update Group with specyfied Identity
       operationId: modules.controllers.groups_controller.update_group
-      security:
-        - BearerToken: []
-      tags:
-        - Groups 
-      parameters:
-        - name: group_id
-          in: path
-          schema:
-            type: string
-          description: Guid identity
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateGroupObject'
-      responses:
-        '200':
-          description: Group data updated succesfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GroupObject'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: User don't have required roles          
-        '404':
-          description: Group with this identity doesn't exists.
-    delete:
-      summary: Delete specyfied Group
-      operationId: modules.controllers.groups_controller.delete_group
       security:
         - BearerToken: []
       tags:
@@ -359,16 +449,64 @@ paths:
           in: path
           schema:
             type: string
-          description: Guid identity
+          description: The identifier defining the Group to be updated
+          example: '5c55f6dd9bde60358cc057c2'
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Group name
+                    example: 'Some Group Name'
+                  active:
+                    type: boolean
+                    default: True
+                    description: Defines whether the Group is active or not
+      responses:
+        '204':
+          description: Group data updated succesfully
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '401':
+          description: Invalid Authorization Token
+        '403':
+          description: User don't have required roles
+        '404':
+          description: Group with this identity doesn't exists.
+    delete:
+      summary: Remove Group with specyfied Identity
+      operationId: modules.controllers.actions_controller.remove_group_by_id
+      security:
+        - BearerToken: []
+      tags:
+        - Actions
+      parameters:
+        - name: group_id
+          in: path
+          schema:
+            type: string
+          description: The identifier defining the Group to be deleted
+          example: '5c55f6dd9bde60358cc057c2'
           required: true
       responses:
         '204':
           description: Group successfully deleted
+        '401':
+          description: Invalid Authorization Token
         '403':
-          description: User don't have required roles  
+          description: User don't have required roles
         '404':
           description: Group with specyfied identity was not exists
-   
+
   /records:
     get:
       summary: Get all Records
@@ -414,8 +552,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: User don't have required roles          
-  
+          description: User don't have required roles
+
   /records/{record_id}:
     get:
       summary: Get specyfied Record
@@ -476,9 +614,58 @@ components:
       bearerFormat: JWT
       x-bearerInfoFunc: modules.security.jwt.decode_token
   schemas:
+    ErrorObject:
+      properties:
+        message:
+          type: string
+    ActionObject:
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '5c55f6dd9bde60358cc057c2'
+          description: Action identity
+        group_id:
+          type: string
+          format: uuid
+          example: '5c55f6dd9bde60358cc057c2'
+          description: Identity of related group
+        name:
+          type: string
+          description: Action name
+          example: 'Some Action Name'
+        active:
+          type: boolean
+          description: Defines whether the action is active or not
+          default: True
+        created_at:
+          type: string
+          format: date-time
+          description: Define when action was created
+          example: '2019-02-01 12:53:00'
+    GroupObject:
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '5c55f6dd9bde60358cc057c2'
+          description: Group identity
+        name:
+          type: string
+          description: Group name
+          example: 'Some Action Name'
+        active:
+          type: boolean
+          description: Defines whether the Group is active or not
+          default: True
+        created_at:
+          type: string
+          format: date-time
+          description: Define when Group was created
+          example: '2019-02-01 12:53:00'
     ErrorResponse:
       properties:
-        status: 
+        status:
           type: integer
           description: Http response status (the same in header)
         title:
@@ -502,7 +689,7 @@ components:
           format: login
         password:
           type: string
-          format: password 
+          format: password
           description: User password [in base64]
       required:
         - login
@@ -525,7 +712,7 @@ components:
         - login
         - password
         - email
-    UpdateUserDataObject:
+    UpdateSelfPropertiesObject:
       properties:
         password:
           type: string
@@ -534,62 +721,22 @@ components:
         email:
           type: string
           format: email
+          description: User new email adress
 
-    CreateActionObject:
+    UpdatUserRoleObject:
       properties:
-        group_id:
+        user_login:
           type: string
-        name:
+          format: login
+          description: Current user login
+        new_role:
           type: string
-        active:
-          type: boolean
-          default: true
+          format: role
+          enum: ['User','Admin']
+          description: Target user role
       required:
-        - group_id
-        - name
-        - active
-    UpdateActionObject:
-      properties:
-        group_id:
-          type: string
-        name:
-          type: string
-        active:
-          type: boolean
-    ActionObject:
-      properties:
-        action_id:
-          type: string
-        group_id:
-          type: string
-        name:
-          type: string
-        active:
-          type: boolean
-    CreateGroupObject:
-      properties:
-        name:
-          type: string
-        active:
-          type: boolean
-          default: true
-      required:
-        - name
-        - active
-    UpdateGroupObject:
-      properties:
-        name:
-          type: string
-        active:
-          type: boolean
-    GroupObject:
-      properties:
-        group_id:
-          type: string
-        name:
-          type: string
-        active: 
-          type: boolean
+        - user_login
+        - new_role
     CreateRecordObject:
       properties:
         action_id:
@@ -619,7 +766,3 @@ components:
         createdAt:
           type: string
           format: datetime
-    UnauthorizedErrorObject:
-      properties:
-        message:
-          type: string

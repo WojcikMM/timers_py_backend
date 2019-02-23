@@ -1,36 +1,43 @@
 from operator import itemgetter
-
 from connexion import request, NoContent
-from injector import inject
 
-from modules.abstracts.database.collection_providers.collection_providers_abstract import \
-    UsersCollectionProviderAbstract
-from modules.errors.authorization_error import AuthorizationError
+from modules.attributes.authorize import AuthorizeAttribute
+from modules.database.models import User, avalible_roles
 from modules.security.jwt import generate_token
 
 
-@inject
-def login_user(provider: UsersCollectionProviderAbstract) -> {dict, int}:
+def login_user() -> {dict, int}:
     """Authorize user and return json object with Bearer Token"""
     login, password = itemgetter('login', 'password')(request.json)
-    user = provider.get_document_by_filter(login=login, password=password)
+    user = User.objects.get(login=login, password=password)
     return {'token': generate_token(user)}, 200
 
 
-@inject
-def register_user(provider: UsersCollectionProviderAbstract) -> {dict, int}:
-    """Register new user to application"""
-    login, password = itemgetter('login', 'password')(request.json)
-    if provider.any_documents(login=login):
-        raise AuthorizationError(description=f'User with this login: \'{login}\' is already registred.')
-    else:
-        provider.insert_document(request.json)
-        return {'token': generate_token(request.json)}, 200
+def register_user():
+    User(**request.json).save()
+    return {'token': generate_token(request.json)}, 200
 
 
-@inject
-def update_user(user_id: int, provider: UsersCollectionProviderAbstract) -> {dict, int}:
-    """Update user password or email"""
-    updated_id = provider.update_document_by_id(user_id, request.json)
-    status_code = 404 if updated_id is None else 200
-    return NoContent, status_code
+@AuthorizeAttribute(['User', 'Admin'])
+def update_user_properties(user_id: str,token_info):
+    email, password = itemgetter('email', 'password')(request.json)
+    user = User.objects.get(login=user_id)
+    if email is not None:
+        user.password = email
+    if password is not None:
+        user.password = password
+    user.save()
+    return NoContent, 200
+
+
+@AuthorizeAttribute(['Admin'])
+def update_user_role(token_info):
+    user_login, new_role = itemgetter('email', 'password')(request.json)
+    if new_role not in avalible_roles:
+        return {'message': 'This role is forbidden!'}, 403
+    user = User.objects.get(login=user_login)
+    if user is None:
+        return {'message': 'User with this login not exists!'}, 404
+    user.role = new_role
+    user.save()
+    return {'message': 'Role successfully updated.'}, 200

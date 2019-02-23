@@ -1,23 +1,17 @@
-from modules.attributes.authorize import Authorize
+from mongoengine import connect
+
+from modules.database.models.action import Action
+from modules.database.models.group import Group
+
+connect('mongoengine_test', host='localhost', port=27017)
+group = Group(name='Test2')
+group.save()
 
 
-@Authorize('Testowa rola')
-def myFunc(argument_str: str):
-    print('Controller action logic')
 
 
-myFunc('argument funkcji')
 
-#
-# @auth_required_roles('test')
-# def a_function_requiring_decoration():
-#     print("I am the function which needs some decoration to remove my foul smell")
+action = Action(name='ActionTest2', group=group)
+action.save()
 
-
-# a_function_requiring_decoration()
-# def capital_case(x):
-#     return x.capitalize()
-
-
-# def test_capital_case():
-#     assert capital_case('semaphore') == 'Semaphore'
+print(Action.objects().to_json())

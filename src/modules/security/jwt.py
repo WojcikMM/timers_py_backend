@@ -1,6 +1,7 @@
-from operator import is_not, eq
+from operator import eq
 from os import environ
 from time import time
+
 from jose import JWTError, jwt
 from six import raise_from
 from werkzeug.exceptions import Unauthorized

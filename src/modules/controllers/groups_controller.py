@@ -1,54 +1,56 @@
-"""Controller to handling request where target is group object"""
+"""Controller to handling request where target is group_id object"""
+from json import loads
+from operator import itemgetter
+
 from connexion import request, NoContent
 from injector import inject
+from modules.database.models import GroupModel
 
-from modules.abstracts.database.collection_providers.collection_providers_abstract import \
-    GroupsCollectionProviderAbstract
-
-
-@inject
-def get_all_groups(provider: GroupsCollectionProviderAbstract):
-    """
-    Returns all groups from database
-    :return: list of group documents
-    """
-    return provider.get_all_documents(), 200
+__not_found_response = {'messaage': 'No groups found'}, 404
 
 
-@inject
-def get_group(group_id: str, provider: GroupsCollectionProviderAbstract):
-    """Get group by group identity
-    :param provider: Abstract declaration of GroupsCollectionProvider
-    :param group_id identity of specific group
-    """
-    return provider.get_document_by_id(group_id), 200
+def get_all_groups():
+    """Returns all groups from database"""
+    return loads(GroupModel.objects().to_json()), 200
 
 
-@inject
-def create_group(provider: GroupsCollectionProviderAbstract,**kwargs):
-    """Create new group
-    :param provider: Abstract declaration of GroupsCollectionProvider
-    """
-    print(kwargs)
-    return provider.insert_document(request.json), 201
+def get_group_by_id(group_id: str):
+    """Get Group by group_id identity
+    :param group_id identity of specific Group"""
+    action = GroupModel.objects.get(id=group_id)
+    if action is None:
+        return __not_found_response
+    return loads(action.to_json()), 200
 
 
-@inject
-def update_group(group_id: str, provider: GroupsCollectionProviderAbstract):
-    """ Update the existed group
-    :param group_id identity of group to update
-    :param provider: Abstract declaration of GroupsCollectionProvider
-    """
-    body = request.json
-    updated_id = provider.update_document_by_id(group_id, body)
-    status_code = 404 if updated_id is None else 200
-    return NoContent, status_code
+def create_group():
+    """Create new Group document"""
+    return {'id': GroupModel(**request.json).save().id}, 201
+
+
+def update_group(group_id: str):
+    """ Update the existed group_id
+    :param group_id Identity of Group document to update"""
+    action: GroupModel = GroupModel.objects.get(id=group_id)
+    if action is None:
+        return __not_found_response
+    else:
+        name, active = itemgetter('name', 'active')(request.json)
+        if name is not None:
+            action.name = name
+        if active is not None:
+            action.active = active
+        action.save()
+        return NoContent, 204
 
 
 @inject
-def delete_group(group_id: str, provider: GroupsCollectionProviderAbstract):
-    """Delete the existed group
-    :param provider: Abstract declaration of GroupsCollectionProvider
-    :param group_id -- Identity of the group to remove"""
-    status_code = 404 if provider.delete_document_by_id(group_id) is None else 204
-    return NoContent, status_code
+def remove_group_by_id(group_id: str):
+    """Delete the existed group_id
+    :param group_id -- Identity of the Group document to remove"""
+    action: GroupModel = GroupModel.objects.get(id=group_id)
+    if action is None:
+        return __not_found_response
+    delete_return = action.delete()
+    print(delete_return)
+    return NoContent, 204

@@ -14,11 +14,35 @@ class Authorize(object):
         @wraps(function)
         def wrapped_function(*args, **kwargs):
             if 'token_info' not in kwargs:
-                raise IncorrectAuthorizeArgumentError(description="You use authorization decorator on action with no token authorization")
-            elif 'claims' not in kwargs['token_info'] or 'roles' not in kwargs['token_info']['claims'] or type(kwargs['token_info']['claims']['roles']) != []:
+                raise IncorrectAuthorizeArgumentError(
+                    description="You use authorization decorator on action with no token authorization")
+            elif 'claims' not in kwargs['token_info'] or 'roles' not in kwargs['token_info']['claims'] or type(
+                    kwargs['token_info']['claims']['roles']) != []:
                 raise IncorrectAuthorizeArgumentError(description="You don't have any authorization roles")
             else:
                 if self.__required_role not in kwargs['token_info']['roles']:
+                    raise AuthorizationError(description="You don,t have required role to do this action.")
+                else:
+                    return function(*args, **kwargs)
+
+        return wrapped_function
+
+
+class AuthorizeAttribute(object):
+    def __init__(self, required_roles: [str]):
+        """Attribute that guarantees only authorized access for users with the required "required_role" role"""
+        self.__required_roles = required_roles
+
+    def __call__(self, function):
+        @wraps(function)
+        def wrapped_function(*args, **kwargs):
+            if 'token_info' not in kwargs:
+                raise IncorrectAuthorizeArgumentError(
+                    description="You use authorization decorator on action with no token authorization")
+            elif 'role' not in kwargs['token_info']:
+                raise IncorrectAuthorizeArgumentError(description="You don't have any authorization roles")
+            else:
+                if kwargs['token_info']['role'] is not self.__required_roles:
                     raise AuthorizationError(description="You don,t have required role to do this action.")
                 else:
                     return function(*args, **kwargs)
