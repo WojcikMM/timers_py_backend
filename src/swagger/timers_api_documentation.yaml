@@ -22,12 +22,20 @@ paths:
       summary: Changes the user password
       operationId: modules.controllers.auth_controller.update_user_properties
       requestBody:
-        description: User password
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateSelfPropertiesObject'
+             type: object
+             properties:
+              password:
+                type: string
+                format: password
+                description: User new password
+              email:
+                type: string
+                format: email
+                description: User new email adress
       responses:
         '204':
           description: Users data successfully updated.
@@ -59,13 +67,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatUserRoleObject'
+              type: object
+              properties:
+                user_login:
+                  type: string
+                  format: login
+                  example: 'test12'
+                  description: Login of the user you want to change the role
+                new_role:
+                  type: string
+                  format: role
+                  description: New user role
+                  enum:
+                    - User
+                    - Admin
+              required:
+                - user_login
+                - new_role
       responses:
         '204':
           description: Users data successfully updated.
 
         '400':
-          description: Updated parameter is invalid
+          description: At least one parameter is invalid.
           content:
             application/json:
               schema:
@@ -85,7 +109,7 @@ paths:
     post:
       tags:
         - Authorization
-        - Users
+        - Self Servicre
       summary: Login to application
       operationId: modules.controllers.auth_controller.login_user
       requestBody:
@@ -113,7 +137,7 @@ paths:
     put:
       tags:
         - Authorization
-        - Users
+        - Self Servicre
       summary: Register new user to application
       operationId: modules.controllers.auth_controller.register_user
       requestBody:
@@ -122,7 +146,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterUserObject'
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: User login
+                  format: login
+                password:
+                  type: string
+                  format: password
+                  description: User password [in Base64]
+                email:
+                  type: string
+                  format: email
+                  description: User email adress
+              required:
+                - login
+                - password
+                - email
       responses:
         '200':
           description: Log In Successfully
@@ -488,7 +529,7 @@ paths:
       security:
         - BearerToken: []
       tags:
-        - Actions
+        - Groups
       parameters:
         - name: group_id
           in: path
@@ -530,34 +571,121 @@ paths:
       tags:
         - Records
       requestBody:
-        description: Data to create new Record
+        description: Data to create new Group
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateRecordObject'
+              type: object
+              properties:
+                group_id:
+                    type: string
+                    format: uuid
+                    example: '5c55f6dd9bde60358cc057c2'
+                    description: Identity of related Action
+                seconds:
+                  type: integer
+                  description: 'It presents the time of the performed activity in seconds'
+                  example: 68
+                comment:
+                    type: string
+                    description: 'With special document types that grows time to do this activity'
+
+              required:
+                - group_id
+                - seconds
+      responses:
+          '201':
+            description: Group was created successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: '5c55f6dd9bde60358cc057c2'
+                      description: Identity of just created Group document
+          '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorObject'
+          '401':
+            description: Invalid Authorization Token
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorObject'
+          '403':
+            description: User don't have required roles
+
+  /records/in-group/{group_id}:
+    get:
+      summary: Get Record with specyfied Identity
+      operationId: modules.controllers.groups_controller.get_records_by_group_id
+      tags:
+        - Records
+      parameters:
+        - name: group_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Identity of Group for searched Records
+          example: '5c55f6dd9bde60358cc057c2'
       responses:
         '200':
-          description: Record was created successfully
+          description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecordObject'
+                $ref: '#/components/schemas/GroupObject'
         '400':
-          description: Validation Error
+          description: Validation error
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: User don't have required roles
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: Record with this identity doesn't exists.
+
+  /records/in-action/{action_id}:
+     get:
+      summary: Get Record with specyfied Identity
+      operationId: modules.controllers.groups_controller.get_records_by_action_id
+      tags:
+        - Records
+      parameters:
+        - name: action_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Identity of Action for searched Records
+          example: '5c55f6dd9bde60358cc057c2'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: Record with this identity doesn't exists.
 
   /records/{record_id}:
     get:
-      summary: Get specyfied Record
-      operationId: modules.controllers.records_controller.get_record
+      summary: Get Record with specyfied Identity
+      operationId: modules.controllers.groups_controller.get_record_by_id
       tags:
         - Records
       parameters:
@@ -565,28 +693,27 @@ paths:
           in: path
           schema:
             type: string
-          description: Guid identity
           required: true
+          description: Identity of searched Record
+          example: '5c55f6dd9bde60358cc057c2'
       responses:
         '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecordObject'
+                $ref: '#/components/schemas/GroupObject'
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorObject'
         '404':
           description: Record with this identity doesn't exists.
     delete:
-      summary: Delete specyfied Record
-      operationId: modules.controllers.records_controller.delete_record
+      summary: Remove Record with specyfied Identity
+      operationId: modules.controllers.actions_controller.remove_record_by_id
       security:
         - BearerToken: []
       tags:
@@ -596,15 +723,19 @@ paths:
           in: path
           schema:
             type: string
-          description: Guid identity
+          description: The identifier defining the Record to be deleted
+          example: '5c55f6dd9bde60358cc057c2'
           required: true
       responses:
         '204':
-          description: Record was removed.
+          description: Record successfully deleted
+        '401':
+          description: Invalid Authorization Token
         '403':
           description: User don't have required roles
         '404':
           description: Record with specyfied identity was not exists
+
 
 components:
   securitySchemes:
@@ -663,19 +794,6 @@ components:
           format: date-time
           description: Define when Group was created
           example: '2019-02-01 12:53:00'
-    ErrorResponse:
-      properties:
-        status:
-          type: integer
-          description: Http response status (the same in header)
-        title:
-          type: string
-          description: Description of http response status
-        details:
-          type: string
-          description: Explanation which fields are not correct
-        type:
-          type: string
     JWTResponse:
       properties:
         token:
@@ -694,60 +812,6 @@ components:
       required:
         - login
         - password
-    RegisterUserObject:
-      properties:
-        login:
-          type: string
-          description: User login
-          format: login
-        password:
-          type: string
-          format: password
-          description: User password [in Base64]
-        email:
-          type: string
-          format: email
-          description: User email adress
-      required:
-        - login
-        - password
-        - email
-    UpdateSelfPropertiesObject:
-      properties:
-        password:
-          type: string
-          format: password
-          description: User new password
-        email:
-          type: string
-          format: email
-          description: User new email adress
-
-    UpdatUserRoleObject:
-      properties:
-        user_login:
-          type: string
-          format: login
-          description: Current user login
-        new_role:
-          type: string
-          format: role
-          enum: ['User','Admin']
-          description: Target user role
-      required:
-        - user_login
-        - new_role
-    CreateRecordObject:
-      properties:
-        action_id:
-          type: string
-        secondsCount:
-          type: integer
-        comment:
-          type: string
-      required:
-        - action_id
-        - secondsCount
     RecordObject:
       properties:
         record_id:

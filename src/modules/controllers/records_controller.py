@@ -17,12 +17,20 @@ def get_all_records(provider: RecordsCollectionProviderAbstract) -> None:
 
 
 @inject
-def get_record(record_id: str, provider: RecordsCollectionProviderAbstract) -> None:
+def get_record_by_id(record_id: str, provider: RecordsCollectionProviderAbstract) -> None:
     """Get record by record identity
     :param record_id identity of specific record
     :param provider: Abstract declaration of RecordCollectionProvider
     """
     return provider.get_document_by_id(record_id), 200
+
+
+
+def get_records_by_group_id(group_id: str):
+    return 200
+
+def get_records_by_action_id(action_id: str):
+    return 200
 
 
 @inject
@@ -36,9 +44,10 @@ def create_record(provider: RecordsCollectionProviderAbstract) -> None:
 
 
 @inject
-def delete_record(record_id: str, provider: RecordsCollectionProviderAbstract) -> None:
+def remove_record_by_id(record_id: str, provider: RecordsCollectionProviderAbstract) -> None:
     """Delete the existed record
     :param provider: Abstract declaration of RecordCollectionProvider
     :param record_id -- Identity of the record to remove"""
     status_code = 404 if provider.delete_document_by_id(record_id) is None else 204
     return NoContent, status_code
+

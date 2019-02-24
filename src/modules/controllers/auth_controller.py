@@ -32,7 +32,7 @@ def update_user_properties(user_id: str,token_info):
 
 @AuthorizeAttribute(['Admin'])
 def update_user_role(token_info):
-    user_login, new_role = itemgetter('email', 'password')(request.json)
+    user_login, new_role = itemgetter('user_login', 'new_role')(request.json)
     if new_role not in avalible_roles:
         return {'message': 'This role is forbidden!'}, 403
     user = User.objects.get(login=user_login)
