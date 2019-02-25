@@ -2,6 +2,7 @@ from json import dumps
 
 from connexion import FlaskApp
 from flask import Response
+from mongoengine import DoesNotExist
 
 from modules.errors.incorrect_authorize_argument_error import IncorrectAuthorizeArgumentError
 
@@ -11,7 +12,14 @@ def configure_error_handlers(app: FlaskApp):
     app.add_error_handler(403, authorization_error_handler)
     app.add_error_handler(IncorrectAuthorizeArgumentError, authorization_error_handler)
     app.add_error_handler(500, internal_error_handler)
+    app.add_error_handler(DoesNotExist, not_found_error)
     return app
+
+
+def not_found_error(exception) -> Response:
+    print(exception)
+    return Response(response=dumps({"message": "No records found for your searching criteria."}), status=404,
+                    mimetype="application/json")
 
 
 def unauthorized_error_handler(exception) -> Response:

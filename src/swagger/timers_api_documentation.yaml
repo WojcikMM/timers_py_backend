@@ -126,8 +126,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JWTResponse'
-        '401':
-          description: Authorization failed - wrong login or password
+        '404':
+          description: Authorization failed - No users found with specyfied Login and Password.
           content:
             application/json:
               schema:
@@ -171,6 +171,174 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JWTResponse'
+
+  /groups:
+    get:
+      summary: Get all Groups
+      operationId: modules.controllers.groups_controller.get_all_groups
+      tags:
+        - Groups
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupObject'
+    post:
+      summary: Create new Group
+      operationId: modules.controllers.groups_controller.create_group
+      security:
+        - BearerToken: []
+      tags:
+        - Groups
+      requestBody:
+          description: Data to create new Group
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: 'Defines the Group name'
+                    example: 'Some Group name'
+                  active:
+                    type: boolean
+                    default: true
+                    example: true
+                required:
+                  - name
+
+      responses:
+        '201':
+          description: Group was created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: '5c55f6dd9bde60358cc057c2'
+                    description: Identity of just created Group document
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '401':
+          description: Invalid Authorization Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '403':
+          description: User don't have required roles
+
+  /groups/{group_id}:
+    get:
+      summary: Get Group with specyfied Identity
+      operationId: modules.controllers.groups_controller.get_group_by_id
+      tags:
+        - Groups
+      parameters:
+        - name: group_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Identity of searched Group
+          example: '5c55f6dd9bde60358cc057c2'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: Group with this identity doesn't exists.
+    patch:
+      summary: Update Group with specyfied Identity
+      operationId: modules.controllers.groups_controller.update_group
+      security:
+        - BearerToken: []
+      tags:
+        - Groups
+      parameters:
+        - name: group_id
+          in: path
+          schema:
+            type: string
+          description: The identifier defining the Group to be updated
+          example: '5c55f6dd9bde60358cc057c2'
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Group name
+                    example: 'Some Group Name'
+                  active:
+                    type: boolean
+                    default: True
+                    description: Defines whether the Group is active or not
+      responses:
+        '204':
+          description: Group data updated succesfully
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '401':
+          description: Invalid Authorization Token
+        '403':
+          description: User don't have required roles
+        '404':
+          description: Group with this identity doesn't exists.
+    delete:
+      summary: Remove Group with specyfied Identity
+      operationId: modules.controllers.groups_controller.remove_group_by_id
+      security:
+        - BearerToken: []
+      tags:
+        - Groups
+      parameters:
+        - name: group_id
+          in: path
+          schema:
+            type: string
+          description: The identifier defining the Group to be deleted
+          example: '5c55f6dd9bde60358cc057c2'
+          required: true
+      responses:
+        '204':
+          description: Group successfully deleted
+        '401':
+          description: Invalid Authorization Token
+        '403':
+          description: User don't have required roles
+        '404':
+          description: Group with specyfied identity was not exists
 
   /actions:
     get:
@@ -380,174 +548,6 @@ paths:
         '404':
           description: Action with specyfied identity was not exists
 
-  /groups:
-    get:
-      summary: Get all Groups
-      operationId: modules.controllers.groups_controller.get_all_groups
-      tags:
-        - Groups
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GroupObject'
-    post:
-      summary: Create new Group
-      operationId: modules.controllers.groups_controller.create_group
-      security:
-        - BearerToken: []
-      tags:
-        - Groups
-      requestBody:
-          description: Data to create new Group
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: 'Defines the Group name'
-                    example: 'Some Group name'
-                  active:
-                    type: boolean
-                    default: true
-                    example: true
-                required:
-                  - name
-
-      responses:
-        '201':
-          description: Group was created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                    example: '5c55f6dd9bde60358cc057c2'
-                    description: Identity of just created Group document
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorObject'
-        '401':
-          description: Invalid Authorization Token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorObject'
-        '403':
-          description: User don't have required roles
-
-  /groups/{group_id}:
-    get:
-      summary: Get Group with specyfied Identity
-      operationId: modules.controllers.groups_controller.get_group_by_id
-      tags:
-        - Groups
-      parameters:
-        - name: group_id
-          in: path
-          schema:
-            type: string
-          required: true
-          description: Identity of searched Group
-          example: '5c55f6dd9bde60358cc057c2'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GroupObject'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorObject'
-        '404':
-          description: Group with this identity doesn't exists.
-    patch:
-      summary: Update Group with specyfied Identity
-      operationId: modules.controllers.groups_controller.update_group
-      security:
-        - BearerToken: []
-      tags:
-        - Groups
-      parameters:
-        - name: group_id
-          in: path
-          schema:
-            type: string
-          description: The identifier defining the Group to be updated
-          example: '5c55f6dd9bde60358cc057c2'
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: Group name
-                    example: 'Some Group Name'
-                  active:
-                    type: boolean
-                    default: True
-                    description: Defines whether the Group is active or not
-      responses:
-        '204':
-          description: Group data updated succesfully
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorObject'
-        '401':
-          description: Invalid Authorization Token
-        '403':
-          description: User don't have required roles
-        '404':
-          description: Group with this identity doesn't exists.
-    delete:
-      summary: Remove Group with specyfied Identity
-      operationId: modules.controllers.actions_controller.remove_group_by_id
-      security:
-        - BearerToken: []
-      tags:
-        - Groups
-      parameters:
-        - name: group_id
-          in: path
-          schema:
-            type: string
-          description: The identifier defining the Group to be deleted
-          example: '5c55f6dd9bde60358cc057c2'
-          required: true
-      responses:
-        '204':
-          description: Group successfully deleted
-        '401':
-          description: Invalid Authorization Token
-        '403':
-          description: User don't have required roles
-        '404':
-          description: Group with specyfied identity was not exists
-
   /records:
     get:
       summary: Get all Records
@@ -625,7 +625,7 @@ paths:
   /records/in-group/{group_id}:
     get:
       summary: Get Record with specyfied Identity
-      operationId: modules.controllers.groups_controller.get_records_by_group_id
+      operationId: modules.controllers.records_controller.get_records_by_group_id
       tags:
         - Records
       parameters:
@@ -655,7 +655,7 @@ paths:
   /records/in-action/{action_id}:
      get:
       summary: Get Record with specyfied Identity
-      operationId: modules.controllers.groups_controller.get_records_by_action_id
+      operationId: modules.controllers.records_controller.get_records_by_action_id
       tags:
         - Records
       parameters:
@@ -685,7 +685,7 @@ paths:
   /records/{record_id}:
     get:
       summary: Get Record with specyfied Identity
-      operationId: modules.controllers.groups_controller.get_record_by_id
+      operationId: modules.controllers.records_controller.get_record_by_id
       tags:
         - Records
       parameters:
@@ -713,7 +713,7 @@ paths:
           description: Record with this identity doesn't exists.
     delete:
       summary: Remove Record with specyfied Identity
-      operationId: modules.controllers.actions_controller.remove_record_by_id
+      operationId: modules.controllers.records_controller.remove_record_by_id
       security:
         - BearerToken: []
       tags:
