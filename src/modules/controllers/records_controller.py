@@ -1,53 +1,56 @@
 """Controller to handling request where target is record object"""
+from json import loads
 from connexion import request, NoContent
-from injector import inject
+from modules.database.models import RecordModel
 
-from modules.abstracts.database.collection_providers.collection_providers_abstract import \
-    RecordsCollectionProviderAbstract
-
-
-@inject
-def get_all_records(provider: RecordsCollectionProviderAbstract) -> None:
-    """
-    Returns all records from database
-    :param provider: Abstract declaration of RecordCollectionProvider
-    :return: list of record documents
-    """
-    return provider.get_all_documents(), 200
+__not_found_response = {'messaage': 'No Records found'}, 404
 
 
-@inject
-def get_record_by_id(record_id: str, provider: RecordsCollectionProviderAbstract) -> None:
-    """Get record by record identity
-    :param record_id identity of specific record
-    :param provider: Abstract declaration of RecordCollectionProvider
-    """
-    return provider.get_document_by_id(record_id), 200
+def get_all_records():
+    """Returns all Records from database"""
+    return loads(RecordModel.objects().to_json()), 200
 
 
+def get_record_by_id(record_id: str):
+    """Get Record document by record_id identity
+    :param record_id identity of specific Record"""
+    record = RecordModel.objects.get(id=record_id)
+    if record is None:
+        return __not_found_response
+    return loads(record.to_json()), 200
 
+
+# test it
 def get_records_by_group_id(group_id: str):
-    return 200
+    """Get Record document by related group_id identity
+    :param group_id identity of related Group with Record"""
+    record = RecordModel.objects.get(action_id__group=group_id)
+    if record is None:
+        return __not_found_response
+    return loads(record.to_json()), 200
 
+
+# test it
 def get_records_by_action_id(action_id: str):
-    return 200
+    """Get Record document by related action_id identity
+    :param action_id identity of related Action with Record"""
+    record = RecordModel.objects.get(action=action_id)
+    if record is None:
+        return __not_found_response
+    return loads(record.to_json()), 200
 
 
-@inject
-def create_record(provider: RecordsCollectionProviderAbstract) -> None:
-    """Create new record
-    :param provider: Abstract declaration of RecordCollectionProvider
-    """
-    body = request.json
-    print(body)
-    return provider.insert_document(body), 201
+def create_record():
+    """Create new Record document"""
+    return {'id': RecordModel(**request.json).save().id}, 201
 
 
-@inject
-def remove_record_by_id(record_id: str, provider: RecordsCollectionProviderAbstract) -> None:
-    """Delete the existed record
-    :param provider: Abstract declaration of RecordCollectionProvider
-    :param record_id -- Identity of the record to remove"""
-    status_code = 404 if provider.delete_document_by_id(record_id) is None else 204
-    return NoContent, status_code
-
+def remove_record_by_id(record_id: str):
+    """Delete the existed group_id
+    :param record_id -- Identity of the Record document to remove"""
+    record: RecordModel = RecordModel.objects.get(id=record_id)
+    if record is None:
+        return __not_found_response
+    delete_return = record.delete()
+    print(delete_return)
+    return NoContent, 204

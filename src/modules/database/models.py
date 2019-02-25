@@ -22,14 +22,14 @@ class GroupModel(Document):
 
 
 class ActionModel(Document):
-    group_id = ReferenceField(GroupModel, reverse_delete_rule=CASCADE, required=True)
+    group = ReferenceField(GroupModel, reverse_delete_rule=CASCADE, required=True)
     name = StringField(required=True, min_length=5)
     active = BooleanField(required=True, default=True)
     created_at = DateTimeField(default=datetime.utcnow)
 
 
-class Record(Document):
-    action_id = ReferenceField(ActionModel, required=True)
+class RecordModel(Document):
+    action = ReferenceField(ActionModel, required=True)
     seconds = DecimalField(precision=0, required=True)
     comment = StringField()
     user = ReferenceField(User, required=True)
