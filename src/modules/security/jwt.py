@@ -26,13 +26,13 @@ def decode_token(token):
 def generate_token(user_document) -> str:
     """
     Create Bearer token by UserLogin
-    :type user_document: UserModel - User Document object
+    :type user_document: UserModel - UserModel Document object
     :rtype: str
     :return: Bearer Token
     """
 
     if eq(user_document, None):
-        raise AuthorizationError(description='User login or password is invalid!')
+        raise AuthorizationError(description='UserModel login or password is invalid!')
     else:
         time_ticks = int(time())
         payload = {

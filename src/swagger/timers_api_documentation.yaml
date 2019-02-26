@@ -31,11 +31,11 @@ paths:
               password:
                 type: string
                 format: password
-                description: User new password
+                description: UserModel new password
               email:
                 type: string
                 format: email
-                description: User new email adress
+                description: UserModel new email adress
       responses:
         '204':
           description: Users data successfully updated.
@@ -57,7 +57,7 @@ paths:
   /users/update_role:
     patch:
       tags:
-        - User Administration
+        - UserModel Administration
       security:
         - BearerToken: []
       summary: Promote or Degrade user role
@@ -79,7 +79,7 @@ paths:
                   format: role
                   description: New user role
                   enum:
-                    - User
+                    - UserModel
                     - Admin
               required:
                 - user_login
@@ -95,7 +95,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
         '404':
-          description: User with this login not exists
+          description: UserModel with this login not exists
         '401':
           description: Invalid Authorization Token
           content:
@@ -103,7 +103,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
 
   /login:
     post:
@@ -134,7 +134,7 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
 
   /register:
-    put:
+    post:
       tags:
         - Authorization
         - Self Servicre
@@ -150,16 +150,16 @@ paths:
               properties:
                 login:
                   type: string
-                  description: User login
+                  description: UserModel login
                   format: login
                 password:
                   type: string
                   format: password
-                  description: User password [in Base64]
+                  description: UserModel password [in Base64]
                 email:
                   type: string
                   format: email
-                  description: User email adress
+                  description: UserModel email adress
               required:
                 - login
                 - password
@@ -239,7 +239,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
 
   /groups/{group_id}:
     get:
@@ -312,7 +312,7 @@ paths:
         '401':
           description: Invalid Authorization Token
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
         '404':
           description: Group with this identity doesn't exists.
     delete:
@@ -336,7 +336,7 @@ paths:
         '401':
           description: Invalid Authorization Token
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
         '404':
           description: Group with specyfied identity was not exists
 
@@ -412,7 +412,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
 
   /actions/by-group/{group_id}:
     get:
@@ -520,7 +520,7 @@ paths:
         '401':
           description: Invalid Authorization Token
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
         '404':
           description: Action with this identity doesn't exists.
     delete:
@@ -544,7 +544,7 @@ paths:
         '401':
           description: Invalid Authorization Token
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
         '404':
           description: Action with specyfied identity was not exists
 
@@ -578,7 +578,7 @@ paths:
             schema:
               type: object
               properties:
-                group_id:
+                action_id:
                     type: string
                     format: uuid
                     example: '5c55f6dd9bde60358cc057c2'
@@ -592,11 +592,11 @@ paths:
                     description: 'With special document types that grows time to do this activity'
 
               required:
-                - group_id
+                - action_id
                 - seconds
       responses:
           '201':
-            description: Group was created successfully
+            description: Record was created successfully
             content:
               application/json:
                 schema:
@@ -606,7 +606,7 @@ paths:
                       type: string
                       format: uuid
                       example: '5c55f6dd9bde60358cc057c2'
-                      description: Identity of just created Group document
+                      description: Identity of just created Record document
           '400':
             description: Validation error
             content:
@@ -620,7 +620,7 @@ paths:
                 schema:
                   $ref: '#/components/schemas/ErrorObject'
           '403':
-            description: User don't have required roles
+            description: UserModel don't have required roles
 
   /records/in-group/{group_id}:
     get:
@@ -732,7 +732,7 @@ paths:
         '401':
           description: Invalid Authorization Token
         '403':
-          description: User don't have required roles
+          description: UserModel don't have required roles
         '404':
           description: Record with specyfied identity was not exists
 
@@ -803,12 +803,12 @@ components:
       properties:
         login:
           type: string
-          description: User login
+          description: UserModel login
           format: login
         password:
           type: string
           format: password
-          description: User password [in base64]
+          description: UserModel password [in base64]
       required:
         - login
         - password
