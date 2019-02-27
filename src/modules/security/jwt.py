@@ -41,7 +41,7 @@ def generate_token(user_document) -> str:
             "exp": time_ticks + int(get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_TOKEN_EXPIRATION_SECONDS')),
             "sub": user_document['login'],
             "claims": {
-                "roles": user_document['user_roles'] if 'user_roles' in user_document else []
+                "role": user_document['role']
             }
         }
         return jwt.encode(payload, get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_SECRET'))

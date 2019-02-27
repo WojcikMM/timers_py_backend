@@ -2,7 +2,7 @@ version: '3.1'
 
 secrets:
   JWT_SECRETS:
-    file: ./configuration/jwt_secrets.json
+    file: ./src/jwt_secrets.json
 
 services:
   timers-backend:
@@ -14,10 +14,14 @@ services:
     secrets:
       - JWT_SECRETS
     environment:
-      JWT_SECRET_FILE_NAME: JWT_SECRETS
-      MONGO_CONNECTION_STRING: mongodb://mongo-db:27017/
+      JWT_SECRET_FILE_NAME: jwt_secrets.json
       MONGO_DATABASE_NAME: timers
-      IS_DOCKER_ENV: true
+      MONGO_DATABASE_SERVER: mongo-db
+      FLASK_DEFAULT_PORT: 8080
+      FLASK_IS_DEBUG: 'False'
+      FLASK_USE_RELOADER: 'False'
+
+      IS_DOCKER_ENV: 'True'
   mongo-db:
     image: mongo
     volumes:

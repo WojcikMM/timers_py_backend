@@ -8,7 +8,7 @@ from modules.errors.invalid_configuration_argument_error import InvalidConfigura
 def get_secret(secret_file_name: str, secret_key: str) -> str:
     """Function to decode docker secrets"""
     try:
-        main_path: str = f'run/secrets/' if bool(environ['IS_DOCKER_ENV']) else '../configuration/'
+        main_path: str = f'run/secrets/' if bool(environ['IS_DOCKER_ENV']) else '../src/'
 
         with open(f'{main_path}{secret_file_name}', 'r', encoding='UTF-8') as secret_file:
             secret_file = load(secret_file)
