@@ -1,5 +1,5 @@
 from datetime import datetime
-from mongoengine import BooleanField
+from mongoengine import BooleanField, IntField
 from mongoengine import CASCADE
 from mongoengine import Document, StringField, DateTimeField, EmailField
 from mongoengine import ReferenceField, DecimalField
@@ -30,7 +30,8 @@ class ActionModel(Document):
 
 class RecordModel(Document):
     action_id = ReferenceField(ActionModel, required=True)
-    seconds = DecimalField(precision=0, required=True)
+    seconds = IntField(min_value=1, required=True)
+
     comment = StringField()
     user = ReferenceField(UserModel, required=True)
     created_at = DateTimeField(default=datetime.utcnow)

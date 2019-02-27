@@ -13,10 +13,11 @@ paths:
       responses:
         '200':
           description: Application is alive.
+
   /self/change-password:
     patch:
       tags:
-        - Self Servicre
+        - Self Service
       security:
         - BearerToken: []
       summary: Changes the user password
@@ -137,7 +138,7 @@ paths:
     post:
       tags:
         - Authorization
-        - Self Servicre
+        - Self Service
       summary: Register new user to application
       operationId: modules.controllers.auth_controller.register_user
       requestBody:
@@ -621,6 +622,61 @@ paths:
                   $ref: '#/components/schemas/ErrorObject'
           '403':
             description: UserModel don't have required roles
+
+  /records/own-records:
+    get:
+      summary: Get Record registred by login user.
+      operationId: modules.controllers.records_controller.get_own_records
+      security:
+        - BearerToken: []
+      tags:
+        - Records
+        - Self Service
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: Record with this identity doesn't exists.
+
+  /records/for-user/{login}:
+    get:
+      summary: Get Record registred by user.
+      operationId: modules.controllers.records_controller.get_user_records
+      tags:
+        - Records
+      parameters:
+        - name: login
+          in: path
+          schema:
+            type: string
+          required: true
+          description: Login user to search
+          example: 'User123'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupObject'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        '404':
+          description: Record with this identity doesn't exists.
 
   /records/in-group/{group_id}:
     get:
