@@ -14,20 +14,19 @@ def login_user() -> {dict, int}:
 
 
 def register_user():
-    UserModel(**request.json).save()
-    return {'token': generate_token(request.json)}, 200
+    user = UserModel(**request.json).save()
+    return {'token': generate_token(user)}, 200
 
 
-@AuthorizeAttribute(['UserModel', 'Admin'])
-def update_user_properties(user_id: str,token_info):
-    email, password = itemgetter('email', 'password')(request.json)
-    user = UserModel.objects.get(login=user_id)
-    if email is not None:
-        user.password = email
-    if password is not None:
-        user.password = password
+@AuthorizeAttribute(['User','Admin'])
+def update_user_properties(user: str,token_info):
+    user = UserModel.objects.get(login=user)
+    if 'email' is not request.json:
+        user.email = request.json['email']
+    if 'password' is not request.json:
+        user.password = request.json['password']
     user.save()
-    return NoContent, 200
+    return NoContent, 204
 
 
 @AuthorizeAttribute(['Admin'])

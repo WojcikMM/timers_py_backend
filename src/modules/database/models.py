@@ -4,14 +4,14 @@ from mongoengine import CASCADE
 from mongoengine import Document, StringField, DateTimeField, EmailField
 from mongoengine import ReferenceField, DecimalField
 
-avalible_roles: [str] = ['UserModel', 'Admin']
+avalible_roles: [str] = ['User', 'Admin']
 
 
 class UserModel(Document):
     login = StringField(min_length=4, required=True, unique=True)
     email = EmailField(required=True, unique=True)
     password = StringField(min_length=5, max_length=50, required=True)
-    role = StringField(choices=avalible_roles, default='UserModel')
+    role = StringField(required=True, choices=avalible_roles, default='User')
     created_at = DateTimeField(default=datetime.utcnow)
 
 

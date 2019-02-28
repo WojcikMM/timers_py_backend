@@ -15,10 +15,11 @@ class AuthorizeAttribute(object):
             if 'token_info' not in kwargs:
                 raise IncorrectAuthorizeArgumentError(
                     description="You use authorization decorator on action with no token authorization")
-            elif 'role' not in kwargs['token_info']:
+            elif 'claims' not in kwargs['token_info'] or 'role' not in kwargs['token_info']['claims']:
                 raise IncorrectAuthorizeArgumentError(description="You don't have any authorization roles")
             else:
-                if kwargs['token_info']['role'] is not self.__required_roles:
+                user_role = kwargs['token_info']['claims']['role']
+                if user_role not in self.__required_roles:
                     raise AuthorizationError(description="You don,t have required role to do this action.")
                 else:
                     return function(*args, **kwargs)

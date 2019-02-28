@@ -18,9 +18,9 @@ services:
       MONGO_DATABASE_NAME: timers
       MONGO_DATABASE_SERVER: mongo-db
       FLASK_DEFAULT_PORT: 8080
-      FLASK_IS_DEBUG: 'False'
-      FLASK_USE_RELOADER: 'False'
-
+      FLASK_IS_DEBUG: None
+      FLASK_USE_RELOADER: None
+      MONGO_DATABASE_PORT: 27017
       IS_DOCKER_ENV: 'True'
   mongo-db:
     image: mongo
