@@ -2,7 +2,7 @@ version: '3.1'
 
 secrets:
   JWT_SECRETS:
-    file: ./src/jwt_secrets.json
+    file: ./src/jwt_secrets_demo.json
 
 services:
   timers-backend:
