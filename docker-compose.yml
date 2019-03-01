@@ -14,7 +14,7 @@ services:
     secrets:
       - JWT_SECRETS
     environment:
-      JWT_SECRET_FILE_NAME: jwt_secrets.json
+      JWT_SECRET_FILE_NAME: jwt_secrets_demo.json
       MONGO_DATABASE_NAME: timers
       MONGO_DATABASE_SERVER: mongo-db
       FLASK_DEFAULT_PORT: 8080
@@ -23,6 +23,4 @@ services:
       MONGO_DATABASE_PORT: 27017
       IS_DOCKER_ENV: 'True'
   mongo-db:
-    image: mongo
-    volumes:
-      - '/var/lib/boot2docker/my-mongodb-data/:/data/db'
+    image: mongo     
