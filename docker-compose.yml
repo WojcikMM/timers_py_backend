@@ -19,7 +19,7 @@ services:
       MONGO_DATABASE_SERVER: mongo-db
       FLASK_DEFAULT_PORT: 8080
       FLASK_IS_DEBUG: 'True'
-      FLASK_USE_RELOADER: 
+      FLASK_USE_RELOADER: ''
       MONGO_DATABASE_PORT: 27017
       IS_DOCKER_ENV: 'True'
   mongo-db:
