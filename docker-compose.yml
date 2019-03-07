@@ -8,19 +8,19 @@ services:
     links:
       - mongo-db
     environment:
-      MONGO_DATABASE_NAME: timers
-      MONGO_DATABASE_SERVER: mongo-db
+      MONGO_DATABASE_NAME: 'timers'
+      MONGO_DATABASE_SERVER: 'mongo-db'
       FLASK_DEFAULT_PORT: 8080
-      FLASK_IS_DEBUG: False
-      FLASK_USE_RELOADER: False
+      FLASK_IS_DEBUG: 'False'
+      FLASK_USE_RELOADER: 'False'
       MONGO_DATABASE_PORT: 27017
-      JWT_ISSUER: timerki.com
+      JWT_ISSUER: 'timerki.com'
       JWT_SECRET: "my_top_secret1"
-      JWT_ALGORITM: HS256
+      JWT_ALGORITM: 'HS256'
       JWT_TOKEN_EXPIRATION_SECONDS: 18000
 
   mongo-db:
     image: mangoraft/mongodb-arm 
     environment:
-      AUTH: no
+      AUTH: 'no'
    
