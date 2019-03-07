@@ -22,5 +22,5 @@ services:
   mongo-db:
     image: mangoraft/mongodb-arm 
     environment:
-	    AUTH: no
+      AUTH: no
    
