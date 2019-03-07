@@ -10,10 +10,10 @@ from modules.configurations.error_handlers import configure_error_handlers
 
 mongo_database_name = environ['MONGO_DATABASE_NAME']
 mongo_database_server = environ['MONGO_DATABASE_SERVER']
-mongo_database_port = int(environ['MONGO_DATABASE_PORT'])
-app_default_port = int(environ['FLASK_DEFAULT_PORT'])
-app_is_debug_mode = bool(environ['FLASK_IS_DEBUG'])
-app_use_reloader = bool(environ['FLASK_USE_RELOADER'])
+mongo_database_port = environ['MONGO_DATABASE_PORT']
+app_default_port = environ['FLASK_DEFAULT_PORT']
+app_is_debug_mode = environ['FLASK_IS_DEBUG'] == 'True'
+app_use_reloader = environ['FLASK_USE_RELOADER'] == 'True'
 
 app = FlaskApp(__name__, specification_dir='swagger/')
 app.add_api('timers_api_documentation.yaml', strict_validation=True)

@@ -7,7 +7,6 @@ from six import raise_from
 from werkzeug.exceptions import Unauthorized
 
 from modules.errors.authorization_error import AuthorizationError
-from modules.security.utils import get_secret
 
 
 def decode_token(token):
@@ -16,9 +15,7 @@ def decode_token(token):
         - token -> bearer token
     """
     try:
-        return jwt.decode(token,
-                          get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_SECRET'),
-                          get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_ALGORITM'))
+        return jwt.decode(token, environ['JWT_SECRET'], environ['JWT_ALGORITM'])
     except JWTError as e:
         raise_from(Unauthorized, e)
 
@@ -36,13 +33,13 @@ def generate_token(user_document) -> str:
     else:
         time_ticks = int(time())
         payload = {
-            "iss": get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_ISSUER'),
+            "iss": environ['JWT_ISSUER'],
             "iat": time_ticks,
-            "exp": time_ticks + int(get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_TOKEN_EXPIRATION_SECONDS')),
+            "exp": time_ticks + environ['JWT_TOKEN_EXPIRATION_SECONDS'],
             "sub": user_document['login'],
             "claims": {
                 "role": user_document['role']
             }
         }
-        return jwt.encode(payload, get_secret(environ['JWT_SECRET_FILE_NAME'], 'JWT_SECRET'))
+        return jwt.encode(payload, environ['JWT_SECRET'])
 
