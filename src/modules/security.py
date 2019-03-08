@@ -6,7 +6,7 @@ from jose import JWTError, jwt
 from six import raise_from
 from werkzeug.exceptions import Unauthorized
 
-from modules.errors.authorization_error import AuthorizationError
+from modules.error_types import AuthorizationError
 
 
 def decode_token(token):

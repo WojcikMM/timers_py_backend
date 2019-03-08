@@ -1,9 +1,9 @@
 from operator import itemgetter
 from connexion import request, NoContent
 
-from modules.attributes.authorize import AuthorizeAttribute
+from modules.attributes import AuthorizeAttribute
 from modules.database.models import UserModel, avalible_roles
-from modules.security.jwt import generate_token
+from modules.security import generate_token
 
 
 def login_user() -> {dict, int}:

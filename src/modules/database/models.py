@@ -1,8 +1,9 @@
 from datetime import datetime
+
 from mongoengine import BooleanField, IntField
 from mongoengine import CASCADE
 from mongoengine import Document, StringField, DateTimeField, EmailField
-from mongoengine import ReferenceField, DecimalField
+from mongoengine import ReferenceField
 
 avalible_roles: [str] = ['User', 'Admin']
 

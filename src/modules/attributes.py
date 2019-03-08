@@ -1,7 +1,5 @@
 from functools import wraps
-
-from modules.errors.authorization_error import AuthorizationError
-from modules.errors.incorrect_authorize_argument_error import IncorrectAuthorizeArgumentError
+from modules.error_types import AuthorizationError, IncorrectAuthorizeArgumentError
 
 
 class AuthorizeAttribute(object):

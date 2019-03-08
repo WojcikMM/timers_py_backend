@@ -4,7 +4,7 @@ from connexion import FlaskApp
 from flask import Response
 from mongoengine import DoesNotExist
 
-from modules.errors.incorrect_authorize_argument_error import IncorrectAuthorizeArgumentError
+from modules.error_types import IncorrectAuthorizeArgumentError
 
 
 def configure_error_handlers(app: FlaskApp):

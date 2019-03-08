@@ -15,7 +15,7 @@ services:
       FLASK_USE_RELOADER: 'False'
       MONGO_DATABASE_PORT: 27017
       JWT_ISSUER: 'timerki.com'
-      JWT_SECRET: "my_top_secret1"
+      JWT_SECRET: $TIMERS_JWT_PASSWORD
       JWT_ALGORITM: 'HS256'
       JWT_TOKEN_EXPIRATION_SECONDS: 18000
 
