@@ -799,12 +799,13 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      x-bearerInfoFunc: modules.security.jwt.decode_token
+      x-bearerInfoFunc: modules.security.decode_token
   schemas:
     ErrorObject:
       properties:
         message:
           type: string
+          description: Error description
     ActionObject:
       properties:
         id:
@@ -870,19 +871,35 @@ components:
         - password
     RecordObject:
       properties:
-        record_id:
+        id:
           type: string
+          format: uuid
+          example: '5c55f6dd9bde60358cc057c2'
+          description: Record identity
         action_id:
           type: string
+          format: uuid
+          example: '5c55f6dd9bde60358cc057c2'
+          description: Identity of related Action
         secondsCount:
           type: integer
+          example: 94
+          description: Time (in seconds) registred in current activity
         comment:
           type: string
+          example: Some Additional Comment for my activity
+          description: Comment added to registred activity
         userId:
           type: string
+          example: '5c55f6dd9bde60358cc057c2'
+          description: Specyfy who was registred activity
         userLogin:
           type: string
           format: login
+          example: 'User1234'
+          description: Specyfy who was registred activity
         createdAt:
           type: string
           format: datetime
+          example: '2019-01-01 12:00:00'
+          description: Define when record was created
