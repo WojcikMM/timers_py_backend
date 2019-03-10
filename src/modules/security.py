@@ -35,7 +35,7 @@ def generate_token(user_document) -> str:
         payload = {
             "iss": environ['JWT_ISSUER'],
             "iat": time_ticks,
-            "exp": time_ticks + environ['JWT_TOKEN_EXPIRATION_SECONDS'],
+            "exp": time_ticks + int(environ['JWT_TOKEN_EXPIRATION_SECONDS']),
             "sub": user_document['login'],
             "claims": {
                 "role": user_document['role']
